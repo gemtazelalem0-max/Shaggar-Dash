@@ -10,11 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Link } from '@/i18n/routing';
 import { Activity, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
-type FormState = { error?: string } | null;
+type FormState = { error?: string } | null | undefined;
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [state, formAction, isPending] = useActionState(async (_prevState: FormState, formData: FormData) => {
+  const [state, formAction, isPending] = useActionState(async (_prevState: FormState, formData: FormData): Promise<FormState> => {
     return await login(formData);
   }, null);
 

@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
 
-type ProfileState = { error?: string; success?: boolean } | null;
+type ProfileState = { error?: string; success?: boolean } | null | undefined;
 type ProfileData = {
   full_name?: string | null;
   phone?: string | null;
@@ -21,7 +21,7 @@ type ProfileData = {
 export default function ProfileForm({ profile }: { profile: ProfileData }) {
   const t = useTranslations('Profile');
 
-  const [state, formAction, isPending] = useActionState(async (_prevState: ProfileState, formData: FormData) => {
+  const [state, formAction, isPending] = useActionState(async (_prevState: ProfileState, formData: FormData): Promise<ProfileState> => {
     return await updateProfile(formData);
   }, null);
 

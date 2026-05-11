@@ -10,14 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Link } from '@/i18n/routing';
 import { ShoppingBag, Hammer, Users, Activity, Globe, Check, CheckCircle2 } from 'lucide-react';
 
-type FormState = { error?: string } | null;
+type FormState = { error?: string } | null | undefined;
 
 export default function SignupPage() {
   const t = useTranslations('Auth');
   const tf = useTranslations('Footer');
   const [selectedRole, setSelectedRole] = useState('buyer_seller');
   
-  const [state, formAction, isPending] = useActionState(async (_prevState: FormState, formData: FormData) => {
+  const [state, formAction, isPending] = useActionState(async (_prevState: FormState, formData: FormData): Promise<FormState> => {
     return await signup(formData);
   }, null);
 
