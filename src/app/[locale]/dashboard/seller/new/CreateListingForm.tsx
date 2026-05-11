@@ -41,6 +41,9 @@ export default function CreateListingForm() {
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState('New');
+  const [category, setCategory] = useState('Electronics');
+  const [city, setCity] = useState('Addis Ababa');
+  const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
   const [isPending, setIsPending] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -63,10 +66,10 @@ export default function CreateListingForm() {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('price', price.replace(/,/g, ''));
-    formData.append('category', 'Fashion'); // Fixed for demo, should be state
-    formData.append('city', 'Addis Ababa'); // Fixed for demo, should be state
+    formData.append('category', category);
+    formData.append('city', city);
     imageFiles.forEach((file) => formData.append('images', file));
-    formData.append('description', 'New listing from advanced form');
+    formData.append('description', description);
     formData.append('locale', locale);
 
     setUploadProgress(35);
@@ -201,13 +204,15 @@ export default function CreateListingForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Category *</Label>
-                  <Select>
+                  <Select value={category} onValueChange={(val) => setCategory(val || 'Electronics')}>
                     <SelectTrigger className="h-12 bg-slate-50/50 border-slate-200">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="fashion">Fashion & Clothing</SelectItem>
-                      <SelectItem value="electronics">Electronics</SelectItem>
+                      <SelectItem value="Electronics">Electronics</SelectItem>
+                      <SelectItem value="Fashion">Fashion & Clothing</SelectItem>
+                      <SelectItem value="Home">Home & Garden</SelectItem>
+                      <SelectItem value="Vehicles">Vehicles</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -303,6 +308,8 @@ export default function CreateListingForm() {
                     <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-400 hover:text-slate-900"><Type className="w-3.5 h-3.5" /></button>
                   </div>
                   <Textarea 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     placeholder="Tell potential buyers why they should choose your product..." 
                     className="border-none focus:ring-0 min-h-[200px] bg-transparent text-sm leading-relaxed p-4"
                   />
@@ -316,13 +323,15 @@ export default function CreateListingForm() {
             <div className="space-y-8">
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">City *</Label>
-                <Select>
+                <Select value={city} onValueChange={(val) => setCity(val || 'Addis Ababa')}>
                   <SelectTrigger className="h-12 bg-slate-50/50 border-slate-200">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="addis">Addis Ababa</SelectItem>
-                    <SelectItem value="dire">Dire Dawa</SelectItem>
+                    <SelectItem value="Addis Ababa">Addis Ababa</SelectItem>
+                    <SelectItem value="Dire Dawa">Dire Dawa</SelectItem>
+                    <SelectItem value="Adama">Adama</SelectItem>
+                    <SelectItem value="Bahir Dar">Bahir Dar</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

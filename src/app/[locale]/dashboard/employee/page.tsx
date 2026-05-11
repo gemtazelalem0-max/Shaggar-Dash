@@ -2,7 +2,8 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from '@/i18n/routing';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, CheckCircle, Clock, Star, Plus } from 'lucide-react';
+import { FileText, CheckCircle, Clock, Plus, Eye } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 
 export default async function EmployeeDashboard({
   params,
@@ -17,6 +18,24 @@ export default async function EmployeeDashboard({
     redirect({ href: '/auth/login', locale });
   }
 
+  // Fetch applications
+  const { data: applications } = await supabase
+    .from('applications')
+    .select('*, jobs(title, company)')
+    .eq('applicant_id', user!.id)
+    .order('created_at', { ascending: false });
+
+  // Fetch gig orders (as freelancer)
+  const { data: gigOrders } = await supabase
+    .from('gig_orders')
+    .select('*, gigs(title), profiles!gig_orders_client_id_fkey(full_name)')
+    .eq('freelancer_id', user!.id)
+    .order('created_at', { ascending: false });
+
+  const activeApps = applications?.filter(a => a.status === 'pending').length || 0;
+  const activeGigs = gigOrders?.filter(g => g.delivery_status === 'pending' || g.delivery_status === 'in_progress').length || 0;
+  const completedGigs = gigOrders?.filter(g => g.delivery_status === 'completed').length || 0;
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -24,13 +43,15 @@ export default async function EmployeeDashboard({
           <h1 className="text-3xl font-bold text-slate-900">Employee Dashboard</h1>
           <p className="text-slate-500 mt-1">Track your job applications and gig progress</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Gig Listing
-        </Button>
+        <Link href="/dashboard/employee/gigs/new">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Gig Listing
+          </Button>
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-slate-500">Active Applications</CardTitle>
@@ -39,8 +60,7 @@ export default async function EmployeeDashboard({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">4</div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Under review</p>
+            <div className="text-2xl font-bold text-slate-900">{activeApps}</div>
           </CardContent>
         </Card>
         
@@ -52,8 +72,7 @@ export default async function EmployeeDashboard({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">2</div>
-            <p className="text-xs text-amber-500 mt-1 font-medium">In progress</p>
+            <div className="text-2xl font-bold text-slate-900">{activeGigs}</div>
           </CardContent>
         </Card>
 
@@ -65,75 +84,61 @@ export default async function EmployeeDashboard({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">18</div>
-            <p className="text-xs text-green-500 mt-1 font-medium">+3 this month</p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-slate-500">Rating</CardTitle>
-            <div className="w-8 h-8 bg-purple-50 text-purple-500 rounded-lg flex items-center justify-center">
-              <Star className="w-4 h-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-900">4.9</div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">From 15 reviews</p>
+            <div className="text-2xl font-bold text-slate-900">{completedGigs}</div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-8">
         <Card className="shadow-sm border-slate-200">
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-900">Recent Applications</CardTitle>
+            <CardTitle className="text-lg font-bold text-slate-900">Your Applications</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { job: 'Frontend React Developer', company: 'Tech Addis', status: 'Interview', date: 'Oct 22' },
-                { job: 'UI Designer', company: 'Ethio Designs', status: 'Applied', date: 'Oct 20' },
-                { job: 'Fullstack Engineer', company: 'Safaricom ET', status: 'Rejected', date: 'Oct 15' },
-              ].map((app, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50">
+              {applications?.map((app) => (
+                <div key={app.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
                   <div>
-                    <h4 className="font-semibold text-slate-900">{app.job}</h4>
-                    <p className="text-sm text-slate-500">{app.company} • {app.date}</p>
+                    <h4 className="font-bold text-slate-900">{app.jobs?.title}</h4>
+                    <p className="text-sm text-slate-500">{app.jobs?.company} • {new Date(app.created_at).toLocaleDateString()}</p>
                   </div>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    app.status === 'Interview' ? 'bg-purple-100 text-purple-700' : 
-                    app.status === 'Applied' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                  <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${
+                    app.status === 'accepted' ? 'bg-green-100 text-green-700' : 
+                    app.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
                   }`}>
                     {app.status}
                   </span>
                 </div>
               ))}
+              {applications?.length === 0 && (
+                <div className="text-center py-10 text-slate-500">No applications yet.</div>
+              )}
             </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-slate-200">
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-900">Active Gig Orders</CardTitle>
+            <CardTitle className="text-lg font-bold text-slate-900">Your Gigs / Orders</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { title: 'E-commerce Website Design', client: 'Abebe K.', due: '2 days', price: 'ETB 15,000' },
-                { title: 'Logo & Branding', client: 'Selam Traders', due: '5 days', price: 'ETB 5,000' },
-              ].map((gig, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50">
+              {gigOrders?.map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
                   <div>
-                    <h4 className="font-semibold text-slate-900">{gig.title}</h4>
-                    <p className="text-sm text-slate-500">Client: {gig.client} • Due in {gig.due}</p>
+                    <h4 className="font-bold text-slate-900">{order.gigs?.title}</h4>
+                    <p className="text-sm text-slate-500">Client: {order.profiles?.full_name} • {order.delivery_status}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-slate-900">{gig.price}</p>
-                    <Button variant="link" size="sm" className="h-auto p-0 text-primary">Deliver Work</Button>
-                  </div>
+                  <Link href={`/dashboard/employee/gigs/orders/${order.id}`}>
+                    <Button variant="ghost" size="sm" className="text-primary font-bold">
+                      <Eye className="w-4 h-4 mr-1" /> View
+                    </Button>
+                  </Link>
                 </div>
               ))}
+              {gigOrders?.length === 0 && (
+                <div className="text-center py-10 text-slate-500">No gig orders yet.</div>
+              )}
             </div>
           </CardContent>
         </Card>

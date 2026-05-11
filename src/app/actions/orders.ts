@@ -8,8 +8,6 @@ export async function placeOrder(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  console.log('Place order request:', { user: user?.id, formData: Object.fromEntries(formData.entries()) });
-
   if (!user) {
     return { error: 'You must be logged in to place an order.' };
   }
@@ -21,20 +19,27 @@ export async function placeOrder(formData: FormData) {
     const unitPriceStr = formData.get('unitPrice') as string;
     const locale = (formData.get('locale') as string) || 'en';
 
-    console.log('Processing order:', { productId, quantityStr, paymentMethod, unitPriceStr, locale });
-
     const quantity = parseInt(quantityStr);
     const unitPrice = parseFloat(unitPriceStr);
     const totalPrice = unitPrice * quantity;
 
     if (isNaN(totalPrice)) {
-      console.error('Invalid price or quantity:', { unitPrice, quantity });
       return { error: 'Invalid price or quantity.' };
     }
+
+    // Fetch product to get seller_id
+    const { data: product } = await supabase
+      .from('products')
+      .select('seller_id')
+      .eq('id', productId)
+      .single();
+
+    if (!product) return { error: 'Product not found.' };
 
     const { error } = await supabase.from('orders').insert({
       buyer_id: user.id,
       product_id: productId,
+      seller_id: product.seller_id,
       quantity,
       total_price: totalPrice,
       payment_method: paymentMethod,
@@ -42,15 +47,13 @@ export async function placeOrder(formData: FormData) {
     });
 
     if (error) {
-      console.error('Supabase error placing order:', error);
       return { error: error.message };
     }
 
-    console.log('Order placed successfully');
     revalidatePath(`/${locale}/dashboard/buyer`);
+    revalidatePath(`/${locale}/dashboard/seller`);
     return { success: true };
   } catch (err: any) {
-    console.error('Exception in placeOrder:', err);
     return { error: err.message || 'An unexpected error occurred.' };
   }
 }

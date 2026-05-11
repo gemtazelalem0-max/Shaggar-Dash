@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
+import { updateProduct } from '@/app/actions/products';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { 
@@ -42,21 +43,37 @@ export default function EditListingForm({ product, otherListings }: { product: a
   const t = useTranslations('Dashboard');
   const [title, setTitle] = useState(product.title);
   const [price, setPrice] = useState(product.price.toString());
+  const [category, setCategory] = useState(product.category);
+  const [city, setCity] = useState(product.city);
+  const [description, setDescription] = useState(product.description);
   const [isPending, setIsPending] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const params = useParams();
   const router = useRouter();
   const locale = params.locale as string;
+
   async function handleSave() {
     setIsPending(true);
+    setMessage(null);
     const formData = new FormData();
+    formData.append('id', product.id);
     formData.append('title', title);
     formData.append('price', price.replace(/,/g, ''));
+    formData.append('category', category);
+    formData.append('city', city);
+    formData.append('description', description);
+    formData.append('existing_image_url', product.image_url);
     formData.append('locale', locale);
-    // ... other fields
-    
-    // For now just alert and redirect
-    alert('Changes saved successfully!');
-    router.push('/dashboard/seller');
+
+    const result = await updateProduct(formData);
+    if (result?.error) {
+      setMessage({ type: 'error', text: result.error });
+    } else {
+      setMessage({ type: 'success', text: 'Listing updated successfully!' });
+      setTimeout(() => {
+        router.push('/dashboard/seller');
+      }, 1500);
+    }
     setIsPending(false);
   }
   return (
@@ -132,23 +149,29 @@ export default function EditListingForm({ product, otherListings }: { product: a
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category*</Label>
-                  <Select defaultValue="industrial">
+                  <Select value={category} onValueChange={(val) => setCategory(val || product.category)}>
                     <SelectTrigger className="h-12 bg-white border-slate-200 shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="industrial">Industrial Equipment</SelectItem>
+                      <SelectItem value="Electronics">Electronics</SelectItem>
+                      <SelectItem value="Fashion">Fashion & Clothing</SelectItem>
+                      <SelectItem value="Home">Home & Garden</SelectItem>
+                      <SelectItem value="Vehicles">Vehicles</SelectItem>
+                      <SelectItem value="Industrial">Industrial Equipment</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">City Location*</Label>
-                  <Select defaultValue="addis">
+                  <Select value={city} onValueChange={(val) => setCity(val || product.city)}>
                     <SelectTrigger className="h-12 bg-white border-slate-200 shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="addis">Addis Ababa</SelectItem>
+                      <SelectItem value="Addis Ababa">Addis Ababa</SelectItem>
+                      <SelectItem value="Dire Dawa">Dire Dawa</SelectItem>
+                      <SelectItem value="Adama">Adama</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -183,19 +206,13 @@ export default function EditListingForm({ product, otherListings }: { product: a
           {/* Full Description */}
           <Section title="Full Description" description="Describe your product in detail. Use keywords for better search visibility.">
             <div className="space-y-4">
-              <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                <div className="p-6">
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    High-performance industrial grade coffee processing machine. Perfect for small to medium size washing stations.<br/><br/>
-                    Features:<br/>
-                    - Stainless steel construction<br/>
-                    - Adjustable grinding settings<br/>
-                    - Energy efficient motor<br/>
-                    - Easy cleaning access<br/><br/>
-                    This unit was imported from Italy and has been serviced regularly. Works like new.
-                  </p>
+                <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                  <Textarea 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="border-none focus:ring-0 min-h-[200px] p-6 text-sm text-slate-600 leading-relaxed"
+                  />
                 </div>
-              </div>
               <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
                 <Info className="w-3.5 h-3.5" />
                 A well-written description can increase sales by up to 30%.
