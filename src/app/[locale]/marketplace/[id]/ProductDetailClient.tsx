@@ -27,6 +27,7 @@ export default function ProductDetailClient({ product }: { product: any }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    console.log('Submitting order form:', { productId: product.id, quantity, paymentMethod, unitPrice: product.price });
     setIsPending(true);
     setMessage(null);
 

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
 import { 
   ChevronRight, 
   Upload, 
@@ -36,7 +36,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 export default function EditListingForm({ product, otherListings }: { product: any, otherListings: any[] }) {
   const t = useTranslations('Dashboard');
