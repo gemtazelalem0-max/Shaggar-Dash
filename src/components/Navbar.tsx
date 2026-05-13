@@ -8,9 +8,12 @@ import { Button } from '@/components/ui/button';
 import { signout } from '@/app/actions/auth';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link } from '@/i18n/routing';
-import { Search, MapPin, Grid3X3 } from 'lucide-react';
+import { Search, MapPin, Grid3X3, MessageCircle } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
+import { useState, useEffect } from 'react';
 
 type UserProfile = {
+  id: string;
   full_name: string;
   role: 'buyer_seller' | 'employer' | 'employee' | string;
 } | null;
@@ -18,10 +21,56 @@ type UserProfile = {
 export default function Navbar({ userProfile }: { userProfile: UserProfile }) {
   const t = useTranslations('Navigation');
   const [isPending, startTransition] = useTransition();
+  const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
   const currentLocale = params.locale as string;
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (!userProfile?.id) return;
+
+    const fetchUnread = async () => {
+      // Get conversation IDs the user is part of
+      const { data: convs } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`buyer_id.eq.${userProfile.id},seller_id.eq.${userProfile.id}`);
+      
+      if (!convs || convs.length === 0) {
+        setUnreadCount(0);
+        return;
+      }
+      
+      const ids = convs.map(c => c.id);
+
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .in('conversation_id', ids)
+        .eq('read', false)
+        .neq('sender_id', userProfile.id);
+      
+      setUnreadCount(count || 0);
+    };
+
+    fetchUnread();
+
+    // Subscribe to message changes
+    const channel = supabase
+      .channel('navbar-unread')
+      .on(
+        'postgres_changes', 
+        { event: '*', schema: 'public', table: 'messages' }, 
+        () => fetchUnread()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userProfile?.id, supabase]);
 
   const onSelectChange = (nextLocale: string) => {
     startTransition(() => {
@@ -70,6 +119,15 @@ export default function Navbar({ userProfile }: { userProfile: UserProfile }) {
               <DropdownMenuItem onClick={() => onSelectChange('om')}>Afaan Oromo</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {userProfile && (
+            <Link href="/messages" className="relative p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-full transition-all">
+              <MessageCircle className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-950 animate-pulse"></span>
+              )}
+            </Link>
+          )}
 
           {userProfile ? (
             <DropdownMenu>

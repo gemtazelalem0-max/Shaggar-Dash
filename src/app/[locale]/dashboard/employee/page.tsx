@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { FileText, CheckCircle, Clock, Plus, Eye } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
-export default async function EmployeeDashboard({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+type Props = {
+  params: Promise<{ locale: string }>
+}
+
+export default async function EmployeeDashboard({ params }: Props) {
   const { locale } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

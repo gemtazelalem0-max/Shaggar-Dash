@@ -23,13 +23,15 @@ export const metadata: Metadata = {
   description: "Multi-purpose web platform for Ethiopia and East Africa",
 };
 
+type Props = {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}
+
 export default async function RootLayout({
   children,
   params
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
+}: Props) {
   const { locale } = await params;
   
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {

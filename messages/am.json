@@ -7,5 +7,19 @@
     "marketplace": "ገበያ",
     "jobs": "ስራዎች",
     "gigs": "ጊግስ"
+  },
+  "ProductDetail": {
+    "message_seller_btn": "ሻጩን ያነጋግሩ",
+    "chat_with_seller": "ከሻጩ ጋር ይወያዩ",
+    "order_success": "ትዕዛዙ በተሳካ ሁኔታ ተጠናቅቋል!"
+  },
+  "Messages": {
+    "title": "መልእክቶች",
+    "no_conversations": "እስካሁን ምንም መልእክት የለም።",
+    "type_message": "መልእክት ይጻፉ...",
+    "send": "ላክ",
+    "product_info": "የምርት መረጃ",
+    "unread": "ያልተነበበ",
+    "back": "ወደ መልእክቶች ተመለስ"
   }
 }

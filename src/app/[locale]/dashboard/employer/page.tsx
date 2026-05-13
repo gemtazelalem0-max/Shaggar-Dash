@@ -2,11 +2,11 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from '@/i18n/routing';
 import EmployerDashboardClient from './EmployerDashboardClient';
 
-export default async function EmployerDashboard({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+type Props = {
+  params: Promise<{ locale: string }>
+}
+
+export default async function EmployerDashboard({ params }: Props) {
   const { locale } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

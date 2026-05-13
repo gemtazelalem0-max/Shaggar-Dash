@@ -2,7 +2,11 @@ import { createClient } from '@/utils/supabase/server';
 import GigDetailClient from './GigDetailClient';
 import { notFound } from 'next/navigation';
 
-export default async function GigPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
+type Props = {
+  params: Promise<{ id: string, locale: string }>
+}
+
+export default async function GigPage({ params }: Props) {
   const { id, locale } = await params;
   const supabase = await createClient();
 

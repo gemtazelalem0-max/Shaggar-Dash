@@ -7,5 +7,19 @@
     "marketplace": "Gabaa",
     "jobs": "Hojii",
     "gigs": "Gigs"
+  },
+  "ProductDetail": {
+    "message_seller_btn": "Gurguraatti ergi",
+    "chat_with_seller": "Gurguraa waliin dubbadhu",
+    "order_success": "Ajajni milkaa'inaan raawwatameera!"
+  },
+  "Messages": {
+    "title": "Ergaawwan",
+    "no_conversations": "Hamma yoonaatti ergaan hin jiru.",
+    "type_message": "Ergaa barreessi...",
+    "send": "Ergi",
+    "product_info": "Oduu Meeshaa",
+    "unread": "Hin dubbisamne",
+    "back": "Gara ergaawwaniitti deebi'i"
   }
 }

@@ -3,13 +3,15 @@ import { redirect } from '@/i18n/routing';
 import { Link } from '@/i18n/routing';
 import { LayoutDashboard, ShoppingBag, Briefcase, Settings, MessageSquare } from 'lucide-react';
 
+type Props = {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}
+
 export default async function DashboardLayout({
   children,
   params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
+}: Props) {
   const { locale } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

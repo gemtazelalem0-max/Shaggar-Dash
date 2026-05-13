@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export default async function ProductPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
+type Props = {
+  params: Promise<{ id: string, locale: string }>
+}
+
+export default async function ProductPage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
 

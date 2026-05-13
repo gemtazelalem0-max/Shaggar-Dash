@@ -11,13 +11,13 @@ import { ShoppingBag, Clock, CheckCircle2, XCircle, Truck } from 'lucide-react';
 import { redirect } from '@/i18n/routing';
 import { getTranslations } from 'next-intl/server';
 
-export default function BuyerDashboardPage({ params }: { params: Promise<{ locale: string }> }) {
-  return <BuyerDashboardContent params={params} />;
+type Props = {
+  params: Promise<{ locale: string }>
 }
 
-async function BuyerDashboardContent({ params }: { params: Promise<{ locale: string }> }) {
-  const t = await getTranslations('Dashboard');
+export default async function BuyerDashboardPage({ params }: Props) {
   const { locale } = await params;
+  const t = await getTranslations('Dashboard');
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

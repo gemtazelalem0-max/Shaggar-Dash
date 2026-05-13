@@ -2,11 +2,11 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from '@/i18n/routing';
 import ProfileForm from './ProfileForm';
 
-export default async function ProfilePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+type Props = {
+  params: Promise<{ locale: string }>
+}
+
+export default async function ProfilePage({ params }: Props) {
   const { locale } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

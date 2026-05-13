@@ -2,11 +2,11 @@ import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 import EditListingForm from './EditListingForm';
 
-export default async function EditListingPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string, locale: string }> 
-}) {
+type Props = {
+  params: Promise<{ id: string, locale: string }>
+}
+
+export default async function EditListingPage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
   

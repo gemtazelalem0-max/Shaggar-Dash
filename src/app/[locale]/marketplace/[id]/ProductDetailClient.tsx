@@ -13,8 +13,10 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { placeOrder } from '@/app/actions/orders';
-import { ShoppingBag, CreditCard, Wallet, Banknote, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ShoppingBag, CreditCard, Wallet, Banknote, CheckCircle2, AlertCircle, MessageCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
+import { getOrCreateConversation } from '@/app/actions/messages';
 
 export default function ProductDetailClient({ product }: { product: any }) {
   const t = useTranslations('ProductDetail');
@@ -22,12 +24,12 @@ export default function ProductDetailClient({ product }: { product: any }) {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [isPending, setIsPending] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log('Submitting order form:', { productId: product.id, quantity, paymentMethod, unitPrice: product.price });
     setIsPending(true);
     setMessage(null);
 
@@ -42,10 +44,31 @@ export default function ProductDetailClient({ product }: { product: any }) {
 
     if (result?.error) {
       setMessage({ type: 'error', text: result.error });
+      setIsPending(false);
     } else {
-      setMessage({ type: 'success', text: t('order_success') });
+      // Redirect to buyer dashboard on success as requested
+      router.push('/dashboard/buyer');
     }
-    setIsPending(false);
+  }
+
+  async function handleMessageSeller() {
+    setIsPending(true);
+    const result = await getOrCreateConversation(product.id, product.seller_id);
+    
+    if (result.error === 'auth_required') {
+      router.push('/auth/login');
+      return;
+    }
+
+    if (result.error) {
+      setMessage({ type: 'error', text: result.error });
+      setIsPending(false);
+      return;
+    }
+
+    if (result.conversationId) {
+      router.push(`/messages/${result.conversationId}`);
+    }
   }
 
   return (
@@ -125,17 +148,31 @@ export default function ProductDetailClient({ product }: { product: any }) {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              disabled={isPending}
-              className="w-full h-14 bg-slate-900 text-white hover:bg-slate-800 font-bold text-lg rounded-xl shadow-lg shadow-slate-200 transition-all active:scale-[0.98]"
-            >
-              {isPending ? t('placing_order') : (
+            <div className="flex flex-col gap-3">
+              <Button 
+                type="submit" 
+                disabled={isPending}
+                className="w-full h-14 bg-slate-900 text-white hover:bg-slate-800 font-bold text-lg rounded-xl shadow-lg shadow-slate-200 transition-all active:scale-[0.98]"
+              >
+                {isPending ? t('placing_order') : (
+                  <span className="flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5" /> {t('place_order_btn')}
+                  </span>
+                )}
+              </Button>
+
+              <Button 
+                type="button"
+                variant="outline"
+                disabled={isPending}
+                onClick={handleMessageSeller}
+                className="w-full h-14 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-lg rounded-xl transition-all active:scale-[0.98]"
+              >
                 <span className="flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5" /> {t('place_order_btn')}
+                  <MessageCircle className="w-5 h-5" /> {t('message_seller_btn')}
                 </span>
-              )}
-            </Button>
+              </Button>
+            </div>
           </form>
 
           {message && (

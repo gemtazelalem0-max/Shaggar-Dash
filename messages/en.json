@@ -136,10 +136,21 @@
     "cbebirr": "CBE Birr",
     "placing_order": "Placing Order...",
     "place_order_btn": "Place Order Now",
+    "message_seller_btn": "Message Seller",
+    "chat_with_seller": "Chat with Seller",
     "sold_by": "Sold By",
     "related_products": "Related Products",
-    "view_all": "View All",
+    "view_all": "View all items",
     "details": "Details"
+  },
+  "Messages": {
+    "title": "Messages",
+    "no_conversations": "No conversations yet. Start messaging sellers to see them here!",
+    "type_message": "Type a message...",
+    "send": "Send",
+    "product_info": "Product Info",
+    "unread": "unread",
+    "back": "Back to Messages"
   },
   "Profile": {
     "title": "Your Profile",

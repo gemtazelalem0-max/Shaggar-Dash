@@ -2,7 +2,11 @@ import { createClient } from '@/utils/supabase/server';
 import SellerDashboardClient from './SellerDashboardClient';
 import { redirect } from '@/i18n/routing';
 
-export default async function SellerDashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+type Props = {
+  params: Promise<{ locale: string }>
+}
+
+export default async function SellerDashboardPage({ params }: Props) {
   const { locale } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -2,7 +2,11 @@ import { createClient } from '@/utils/supabase/server';
 import JobDetailClient from './JobDetailClient';
 import { notFound } from 'next/navigation';
 
-export default async function JobPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
+type Props = {
+  params: Promise<{ id: string, locale: string }>
+}
+
+export default async function JobPage({ params }: Props) {
   const { id, locale } = await params;
   const supabase = await createClient();
 
