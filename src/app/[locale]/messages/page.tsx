@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { getTranslations } from 'next-intl/server';
 import ConversationList from './ConversationList';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 
 export default async function MessagesPage() {
   const supabase = await createClient();
@@ -9,7 +10,8 @@ export default async function MessagesPage() {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/auth/login');
+    const locale = await getLocale();
+    redirect(`/${locale}/auth/login`);
   }
 
   // Fetch conversations with basic product and profile info

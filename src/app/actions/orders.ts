@@ -2,7 +2,6 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from '@/i18n/routing';
 
 export async function placeOrder(formData: FormData) {
   const supabase = await createClient();

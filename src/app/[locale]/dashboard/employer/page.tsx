@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 import EmployerDashboardClient from './EmployerDashboardClient';
 
 type Props = {
@@ -12,7 +13,7 @@ export default async function EmployerDashboard({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect({ href: '/auth/login', locale });
+    redirect(`/${locale}/auth/login`);
   }
 
   // Fetch jobs

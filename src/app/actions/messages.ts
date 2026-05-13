@@ -98,16 +98,22 @@ export async function getUnreadCount() {
 
   if (!user) return 0;
 
+  // First get all conversation IDs for this user
+  const { data: conversations } = await supabase
+    .from('conversations')
+    .select('id')
+    .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
+
+  if (!conversations || conversations.length === 0) return 0;
+
+  const convIds = conversations.map(c => c.id);
+
   const { count, error } = await supabase
     .from('messages')
     .select('*', { count: 'exact', head: true })
     .eq('read', false)
     .neq('sender_id', user.id)
-    .in('conversation_id', 
-      supabase.from('conversations')
-        .select('id')
-        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
-    );
+    .in('conversation_id', convIds);
 
   if (error) return 0;
   return count || 0;

@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import SellerDashboardClient from './SellerDashboardClient';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -12,7 +13,7 @@ export default async function SellerDashboardPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect({ href: '/auth/login', locale });
+    redirect(`/${locale}/auth/login`);
   }
 
   // Fetch listings

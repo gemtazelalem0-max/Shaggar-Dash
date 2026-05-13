@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 
@@ -27,11 +27,11 @@ export async function login(formData: FormData) {
     const role = profile?.role || 'buyer_seller';
     const rolePath = role === 'buyer_seller' ? 'seller' : role;
     const locale = await getLocale();
-    redirect({ href: `/dashboard/${rolePath}`, locale });
+    redirect(`/${locale}/dashboard/${rolePath}`);
   }
   
   const locale = await getLocale();
-  redirect({ href: '/profile', locale });
+  redirect(`/${locale}/profile`);
 }
 
 export async function signup(formData: FormData) {
@@ -57,12 +57,12 @@ export async function signup(formData: FormData) {
 
   // After signup, redirect to login or dashboard
   const locale = await getLocale();
-  redirect({ href: '/auth/login?message=Check email to continue sign in process', locale });
+  redirect(`/${locale}/auth/login?message=Check email to continue sign in process`);
 }
 
 export async function signout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   const locale = await getLocale();
-  redirect({ href: '/auth/login', locale });
+  redirect(`/${locale}/auth/login`);
 }

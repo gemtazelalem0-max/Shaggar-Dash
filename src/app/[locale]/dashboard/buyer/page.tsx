@@ -8,7 +8,8 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { ShoppingBag, Clock, CheckCircle2, XCircle, Truck } from 'lucide-react';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
 
 type Props = {
@@ -22,7 +23,7 @@ export default async function BuyerDashboardPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect({ href: '/auth/login', locale });
+    redirect(`/${locale}/auth/login`);
   }
 
   const { data: orders } = await supabase

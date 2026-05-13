@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import { getTranslations } from 'next-intl/server';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 import ChatInterface from './ChatInterface';
 
 type Props = {
@@ -13,7 +13,8 @@ export default async function ChatPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/auth/login');
+    const locale = await getLocale();
+    redirect(`/${locale}/auth/login`);
   }
 
   // Fetch conversation with product and profiles
@@ -31,12 +32,14 @@ export default async function ChatPage({ params }: Props) {
 
   if (error || !conversation) {
     console.error('Conversation not found:', error);
-    redirect('/messages');
+    const locale = await getLocale();
+    redirect(`/${locale}/messages`);
   }
 
   // Check if user is part of the conversation
   if (conversation.buyer_id !== user.id && conversation.seller_id !== user.id) {
-    redirect('/messages');
+    const locale = await getLocale();
+    redirect(`/${locale}/messages`);
   }
 
   // Fetch messages

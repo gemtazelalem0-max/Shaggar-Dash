@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 
 export default async function DashboardIndexPage({
   params,
@@ -11,7 +12,7 @@ export default async function DashboardIndexPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect({ href: '/auth/login', locale });
+    redirect(`/${locale}/auth/login`);
   }
 
   const { data: profile } = await supabase
@@ -23,10 +24,10 @@ export default async function DashboardIndexPage({
   const role = profile?.role || 'buyer_seller';
 
   if (role === 'employer') {
-    redirect({ href: '/dashboard/employer', locale });
+    redirect(`/${locale}/dashboard/employer`);
   } else if (role === 'employee') {
-    redirect({ href: '/dashboard/employee', locale });
+    redirect(`/${locale}/dashboard/employee`);
   } else {
-    redirect({ href: '/dashboard/seller', locale });
+    redirect(`/${locale}/dashboard/seller`);
   }
 }

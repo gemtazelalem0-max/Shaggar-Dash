@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { LayoutDashboard, ShoppingBag, Briefcase, Settings, MessageSquare } from 'lucide-react';
 
@@ -17,7 +18,7 @@ export default async function DashboardLayout({
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect({ href: '/auth/login', locale });
+    redirect(`/${locale}/auth/login`);
   }
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single();
